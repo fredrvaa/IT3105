@@ -1,8 +1,6 @@
-import time
-
 from prettytable import PrettyTable
 
-from simworld.abstract_simworld import Simworld
+from simworld.simworld import Simworld
 
 from simworld.actions import Actions
 

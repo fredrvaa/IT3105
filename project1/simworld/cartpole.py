@@ -5,7 +5,7 @@ from typing import Optional
 
 import numpy as np
 
-from simworld.abstract_simworld import Simworld
+from simworld.simworld import Simworld
 from simworld.actions import Actions
 from simworld.spaces import ContinuousSpace, DiscreteSpace
 
