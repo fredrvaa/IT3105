@@ -3,6 +3,8 @@ from typing import Optional
 import numpy as np
 import matplotlib.pyplot as plt
 
+from simworld.gambler import Gambler
+from simworld.simworld import Simworld
 from simworld.cartpole import CartPole
 from simworld.towers_of_hanoi import TowersOfHanoi
 
@@ -10,7 +12,7 @@ from simworld.towers_of_hanoi import TowersOfHanoi
 class Agent:
     def __init__(self,
                  env,
-                 n_episodes: int = 2000,
+                 n_episodes: int = 300,
                  discount: float = 1.0,
                  min_learning_rate: float = 0.1,
                  min_epsilon: float = 0.1,
@@ -25,7 +27,7 @@ class Agent:
 
         self.env = env
         self.Q = np.zeros(self.env.state_shape + (env.actions.n,))
-
+        print(self.Q.shape)
         self.e = 0
 
         self.steps = np.zeros(n_episodes, dtype=int)
@@ -61,6 +63,8 @@ class Agent:
                 next_state, reward, finished = self.env.next(action)
                 self.update_q(current_state, action, reward, next_state)
                 current_state = next_state
+                if finished:
+                    print(current_state)
             print(f'Finished episode {e} in {self.steps[e]} steps')
             state_history = self.env.state_history
             if self.best_steps is None or len(state_history) < len(self.best_steps):
@@ -72,10 +76,13 @@ class Agent:
 
 
 if __name__ == '__main__':
-    #env = CartPole(buckets=(3, 3, 6, 6))
-    env = TowersOfHanoi(n_disks=4, n_pegs=3)
-    agent = Agent(env, discount=0.9)
+    # env = CartPole(buckets=(3, 3, 6, 6))
+    # env = TowersOfHanoi(n_disks=4, n_pegs=3)
+    env = Gambler()
+    agent = Agent(env, discount=0.7, n_episodes=50000)
     agent.fit()
-    agent.visualize()
-    print(agent.best_steps)
-    env.visualize(agent.best_steps)
+    #agent.visualize()
+    #env.visualize(agent.best_steps)
+    #print(agent.Q)
+    plt.plot(np.argmax(agent.Q, axis=1))
+    plt.show()
