@@ -1,0 +1,25 @@
+environment:
+  type: TowersOfHanoi # {CartPole, TowersOfHanoi, Gambler}
+  n_timesteps: 300
+  n_pegs: 3
+  n_disks: 3
+actor:
+  discount: 0.7
+  start_learning_rate: 1.0
+  end_learning_rate: 0.1
+  learning_rate_decay: 0.05
+  start_epsilon: 1.0
+  end_epsilon: 0.1
+  epsilon_decay: 0.05
+  trace_decay: 0.6
+critic:
+  type: TableCritic # {TableCritic, NetworkCritic}
+  discount: 0.7
+  start_learning_rate: 1.0
+  end_learning_rate: 0.1
+  learning_rate_decay: 0.05
+  trace_decay: 0.6 # Only used by TableCritic
+fit:
+  n_episodes: 300
+
+
