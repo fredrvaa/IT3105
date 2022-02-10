@@ -1,19 +1,17 @@
 from prettytable import PrettyTable
 
-from simworld.simworld import Simworld
+from environments.environment import Environment
 
-from simworld.actions import Actions
+from environments.actions import Actions
 
-class TowersOfHanoi(Simworld):
+class TowersOfHanoi(Environment):
     def __init__(self, n_disks: int = 3, n_pegs: int = 3, n_timesteps: int = 1000):
         self.n_disks = n_disks
         self.n_pegs = n_pegs
         self.n_timesteps = n_timesteps
         self.current_timestep = 0
         self.state = None  # (smallest, ..., largest)
-        self.actions = Actions(n_pegs * (n_pegs - 1))
         self.moves = self._get_moves()
-        self.state_shape = (n_pegs, ) * n_disks
 
         self.state_history = []
 
@@ -73,6 +71,14 @@ class TowersOfHanoi(Simworld):
                 return False
             prev = s
         return True
+
+    @property
+    def state_shape(self):
+        return (self.n_pegs, ) * self.n_disks
+
+    @property
+    def actions(self):
+        return Actions(self.n_pegs * (self.n_pegs - 1))
 
     @classmethod
     def visualize(self, state_history):

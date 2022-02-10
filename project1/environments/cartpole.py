@@ -1,25 +1,14 @@
 import math
 import random
-from dataclasses import dataclass
 from typing import Optional
 
 import numpy as np
 
-from simworld.simworld import Simworld
-from simworld.actions import Actions
-from simworld.spaces import ContinuousSpace, DiscreteSpace
-
-@dataclass
-class State:
-    x: float
-    d_x: float
-    dd_x: float
-    theta: float
-    d_theta: float
-    dd_theta: float
+from environments.environment import Environment
+from environments.actions import Actions
 
 
-class CartPole(Simworld):
+class CartPole(Environment):
     def __init__(self,
                  L: float = 0.5,
                  m_p: float = 0.1,
@@ -50,8 +39,6 @@ class CartPole(Simworld):
         self.state = None
         self.low = np.array([x_min * 2, -1, -theta_max * 2, -math.radians(50)])
         self.high = np.array([x_max * 2, 1, theta_max * 2, math.radians(50)])
-        self.state_shape = (np.inf,) * 4 if buckets is None else buckets
-        self.actions = Actions(2)
 
     def initialize(self) -> list:
         self.current_timestep = 0
@@ -90,6 +77,15 @@ class CartPole(Simworld):
         return x >= self.x_max or x <= self.x_min or \
             abs(theta) >= self.theta_max or \
             self.current_timestep >= self.n_timesteps
+
+    @property
+    def state_shape(self):
+        return (np.inf,) * 4 if self.buckets is None else self.buckets
+
+    @property
+    def actions(self):
+        return Actions(2)
+
 
     def bucketize_state(self, state: np.ndarray):
         bucketized = []

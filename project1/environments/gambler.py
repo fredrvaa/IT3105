@@ -1,19 +1,17 @@
 import numpy as np
 
-from simworld.actions import Actions
-from simworld.simworld import Simworld
+from environments.actions import Actions
+from environments.environment import Environment
 
 
-class Gambler(Simworld):
+class Gambler(Environment):
     def __init__(self, win_probability: float = 0.6, goal_money: int = 100, n_timesteps: int = 2000):
         self.win_probability = win_probability
         self.goal_money: int = goal_money
         self.n_timesteps: int = n_timesteps
         self.current_timestep: int = 0
         self.state = None
-        self.state_shape = (self.goal_money + 1, )
         self.state_history = []
-        self.actions: Actions = Actions(int(self.goal_money / 2))
 
     def initialize(self):
         self.state = np.random.randint(1, self.goal_money)
@@ -49,3 +47,12 @@ class Gambler(Simworld):
             finished = False
         self.state_history.append(self.state)
         return self.state, reward, finished
+
+    @property
+    def state_shape(self):
+        return self.goal_money + 1,
+
+    @property
+    def actions(self):
+        return Actions(int(self.goal_money / 2))
+
