@@ -42,6 +42,20 @@ class ActorCritic:
 
             print(f'Finished episode {episode} after {self.steps[episode]} steps')
 
-    def visualize(self):
+    def visualize_fit(self):
         plt.plot(self.steps)
         plt.show()
+
+    def run(self, visualize: bool = True):
+        steps: int = 0
+        state = self.environment.initialize()
+        self.environment.store_states = visualize
+        finished = False
+        while not finished:
+            steps += 1
+            action = self.actor.choose_action(state)
+            state, _, finished = self.environment.next(action)
+
+        print(f'Finished run after {steps} steps')
+        if visualize:
+            self.environment.visualize()
