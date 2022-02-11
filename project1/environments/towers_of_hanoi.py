@@ -4,8 +4,10 @@ from environments.environment import Environment
 
 from environments.actions import Actions
 
+
 class TowersOfHanoi(Environment):
     def __init__(self, n_disks: int = 3, n_pegs: int = 3, n_timesteps: int = 1000):
+        super().__init__()
         self.n_disks = n_disks
         self.n_pegs = n_pegs
         self.n_timesteps = n_timesteps
@@ -18,7 +20,9 @@ class TowersOfHanoi(Environment):
     def initialize(self):
         self.current_timestep = 0
         self.state = (0, ) * self.n_disks
-        self.state_history = [self.state]
+        self.state_history = []
+        if self.store_states:
+            self.state_history.append(self.state)
         return self.state
 
     def _get_moves(self):
@@ -46,7 +50,7 @@ class TowersOfHanoi(Environment):
         state[from_disk] = to_peg
         self.state = tuple(state)
 
-    def next(self, action):
+    def next(self, action: int) -> tuple[tuple, float, bool]:
         self.current_timestep += 1
         from_peg, to_peg = self.moves[action]
         if self._is_legal(from_peg, to_peg):
@@ -58,11 +62,12 @@ class TowersOfHanoi(Environment):
             reward = -1
             finished = False
 
-        self.state_history.append(self.state)
+        if self.store_states:
+            self.state_history.append(self.state)
         return self.state, reward, finished
 
     @property
-    def is_won(self):
+    def is_won(self) -> bool:
         prev = self.state[0]
         if prev != self.n_pegs - 1:
             return False
@@ -73,24 +78,24 @@ class TowersOfHanoi(Environment):
         return True
 
     @property
-    def state_shape(self):
+    def state_shape(self) -> tuple:
         return (self.n_pegs, ) * self.n_disks
 
     @property
-    def actions(self):
+    def actions(self) -> Actions:
         return Actions(self.n_pegs * (self.n_pegs - 1))
 
-    @classmethod
-    def visualize(self, state_history):
-        for i, state in enumerate(state_history):
-            n_pegs = state_history[-1][0] + 1
+    def visualize(self) -> None:
+        for i, state in enumerate(self.state_history):
+            n_pegs = self.state_history[-1][0] + 1
             table = PrettyTable([f'Peg {x}' for x in range(n_pegs)])
             for disk, peg in enumerate(state):
                 row = [''] * n_pegs
                 row[peg] = 'X'*(disk + 1)
                 table.add_row(row)
             print(table)
-            input('next')
+            input()
+
 
 if __name__ == '__main__':
     t = TowersOfHanoi(n_disks=3, n_pegs=3)

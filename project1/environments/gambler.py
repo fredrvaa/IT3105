@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import pyplot as plt
 
 from environments.actions import Actions
 from environments.environment import Environment
@@ -6,6 +7,7 @@ from environments.environment import Environment
 
 class Gambler(Environment):
     def __init__(self, win_probability: float = 0.6, goal_money: int = 100, n_timesteps: int = 2000):
+        super().__init__()
         self.win_probability = win_probability
         self.goal_money: int = goal_money
         self.n_timesteps: int = n_timesteps
@@ -15,7 +17,9 @@ class Gambler(Environment):
 
     def initialize(self):
         self.state = np.random.randint(1, self.goal_money)
-        self.state_history = [self.state]
+        self.state_history = []
+        if self.store_states:
+            self.state_history.append(self.state)
         return self.state
 
     def _is_legal(self, bet: int):
@@ -45,7 +49,8 @@ class Gambler(Environment):
         else:
             reward = -1
             finished = False
-        self.state_history.append(self.state)
+        if self.store_states:
+            self.state_history.append(self.state)
         return self.state, reward, finished
 
     @property
@@ -55,4 +60,8 @@ class Gambler(Environment):
     @property
     def actions(self):
         return Actions(int(self.goal_money / 2))
+
+    def visualize(self) -> None:
+        plt.plot(np.array(self.state_history))
+        plt.show()
 

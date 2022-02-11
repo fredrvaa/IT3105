@@ -3,6 +3,7 @@ import random
 from typing import Optional
 
 import numpy as np
+from matplotlib import pyplot as plt
 
 from environments.environment import Environment
 from environments.actions import Actions
@@ -13,7 +14,7 @@ class CartPole(Environment):
                  L: float = 0.5,
                  m_p: float = 0.1,
                  m_c: float = 1.0,
-                 g: float = 9.8,
+                 g: float = -9.8,
                  F: float = 10.0,
                  theta_max: float = 0.21,
                  x_min: float = -2.4,
@@ -22,6 +23,7 @@ class CartPole(Environment):
                  n_timesteps: int = 300,
                  buckets: Optional[tuple] = None
                  ):
+        super().__init__()
         self.L: float = L
         self.m_p: float = m_p
         self.m_c: float = m_c
@@ -40,14 +42,30 @@ class CartPole(Environment):
         self.low = np.array([x_min * 2, -1, -theta_max * 2, -math.radians(50)])
         self.high = np.array([x_max * 2, 1, theta_max * 2, math.radians(50)])
 
+        self.state_history = []
+
+    def bucketize_state(self, state: np.ndarray):
+        bucketized = []
+        for i in range(len(state)):
+            low = self.low[i]
+            high = self.high[i]
+            scale = (state[i] + abs(low)) / (high - low)
+            bucketized_value = int(round((self.buckets[i] - 1) * scale))
+            bucketized_value = min(self.buckets[i] - 1, max(0, bucketized_value))
+            bucketized.append(bucketized_value)
+        return tuple(bucketized)
+
     def initialize(self) -> list:
         self.current_timestep = 0
         theta = random.uniform(-self.theta_max, self.theta_max)
         x = (self.x_max + self.x_min) / 2
-        self.state = [x, 0.0, 0.0, theta]
+        self.state = [x, 0.0, theta, 0.0]
+        self.state_history = []
+        if self.store_states:
+            self.state_history.append(self.state)
         return self.bucketize_state(self.state) if self.buckets else self.state
 
-    def next(self, action):
+    def next(self, action: int) -> tuple[tuple, float, bool]:
         self.current_timestep += 1
 
         x, d_x, theta, d_theta = self.state
@@ -68,8 +86,9 @@ class CartPole(Environment):
         theta += self.timestep_delta * d_theta
         d_theta += self.timestep_delta * dd_theta
         self.state = [x, d_x, theta, d_theta]
-
-        return self.bucketize_state(self.state) if self.buckets else self.state, 1, self.finished
+        if self.store_states:
+            self.state_history.append(self.state)
+        return self.bucketize_state(self.state) if self.buckets else self.state, 1.0, self.finished
 
     @property
     def finished(self) -> bool:
@@ -86,17 +105,15 @@ class CartPole(Environment):
     def actions(self):
         return Actions(2)
 
+    def visualize(self) -> None:
+        #print(self.state_history)
+        thetas = np.array(self.state_history)[:, 2]
+        #print(thetas)
+        plt.plot(thetas)
+        plt.show()
 
-    def bucketize_state(self, state: np.ndarray):
-        bucketized = []
-        for i in range(len(state)):
-            low = self.low[i]
-            high = self.high[i]
-            scale = (state[i] + abs(low)) / (high - low)
-            bucketized_value = int(round((self.buckets[i] - 1) * scale))
-            bucketized_value = min(self.buckets[i] - 1, max(0, bucketized_value))
-            bucketized.append(bucketized_value)
-        return tuple(bucketized)
+
+
 
 
 if __name__ == '__main__':
