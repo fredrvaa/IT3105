@@ -1,4 +1,7 @@
+from typing import Optional
+
 import numpy as np
+from matplotlib import pyplot as plt
 
 from environments.environment import Environment
 from learner.utils.decaying_variable import DecayingVariable
@@ -29,14 +32,15 @@ class Actor:
         self.eligibility: np.ndarray = np.zeros(self.pi.shape)
         self.episode_mask: np.ndarray = np.zeros(self.pi.shape, dtype=bool)
 
-    def choose_action(self, state: tuple, episode: int) -> int:
-        if np.random.random() < self.epsilon(episode):
+    def choose_action(self, state: tuple, episode: Optional[int] = None) -> int:
+        if episode is not None and np.random.random() < self.epsilon(episode):
             action = self.environment.actions.random()
         else:
             action = np.argmax(self.pi[state])
 
-        self.episode_mask[state][action] = True
-        self.eligibility[state][action] = 1
+        if episode is not None:
+            self.episode_mask[state][action] = True
+            self.eligibility[state][action] = 1
 
         return action
 
@@ -48,3 +52,12 @@ class Actor:
     def reset(self) -> None:
         self.eligibility = np.zeros(self.pi.shape)
         self.episode_mask = np.zeros(self.pi.shape, dtype=bool)
+
+    def visualize_strategy(self) -> None:
+        if len(self.pi.shape) != 2:
+            raise ValueError('Policy table (PI) must be two dimensional to visualize.')
+
+        print(self.pi.shape)
+        plt.plot(np.argmax(self.pi, axis=1))
+        plt.show()
+
