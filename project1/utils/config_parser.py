@@ -32,6 +32,7 @@ class ConfigParser:
                 elif type(v) is list:
                     parsed_config[k] = [self._parse_config(x) for x in v]
                 elif type(v) is str and k not in STRING_EXCEPTIONS:
+                    print(v)
                     parsed_config[k] = eval(v)
                 else:
                     parsed_config[k] = v
@@ -39,24 +40,24 @@ class ConfigParser:
         return parsed_config
 
     def _get_environment(self) -> Environment:
-        environment = self._parse_config(self._config['environment_type'])
+        environment = eval(self._config['environment_type'])
         kwargs = self._parse_config(self._config['environment_params'])
         return environment(**kwargs)
 
     def _get_actor(self) -> Actor:
-        actor = self._parse_config(self._config['actor_type'])
+        actor = eval(self._config['actor_type'])
         kwargs = self._parse_config(self._config['actor_params'])
         return actor(environment=self.environment, **kwargs)
 
     def _get_critic(self) -> Critic:
-        critic = self._parse_config(self._config['critic_type'])
+        critic = eval(self._config['critic_type'])
         kwargs = self._parse_config(self._config['critic_params'])
         return critic(environment=self.environment, **kwargs)
 
     def _get_actor_critic(self) -> ActorCritic:
         actor = self._get_actor()
         critic = self._get_critic()
-        return ActorCritic(environment=self._environment, actor=actor, critic=critic)
+        return ActorCritic(environment=self.environment, actor=actor, critic=critic)
 
     def _get_fit_parameters(self) -> dict:
         return self._parse_config(self._config['fit'])
