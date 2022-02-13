@@ -3,10 +3,10 @@ from typing import Optional
 import numpy as np
 import matplotlib.pyplot as plt
 
-from simworld.gambler import Gambler
-from simworld.simworld import Simworld
-from simworld.cartpole import CartPole
-from simworld.towers_of_hanoi import TowersOfHanoi
+from environments.environment import Environment
+from environments.gambler import Gambler
+from environments.cartpole import CartPole
+from environments.towers_of_hanoi import TowersOfHanoi
 
 
 class Agent:
@@ -17,6 +17,7 @@ class Agent:
                  min_learning_rate: float = 0.1,
                  min_epsilon: float = 0.1,
                  decay: int = 25,
+                 trace_decay: float = 0.5,
                  ):
         self.env = env
         self.n_episodes = n_episodes
@@ -24,10 +25,10 @@ class Agent:
         self.min_learning_rate = min_learning_rate
         self.min_epsilon = min_epsilon
         self.decay = decay
+        self.trace_decay = trace_decay
 
-        self.env = env
         self.Q = np.zeros(self.env.state_shape + (env.actions.n,))
-        print(self.Q.shape)
+        self.eligibility = np.zeros(self.Q.shape)
         self.e = 0
 
         self.steps = np.zeros(n_episodes, dtype=int)
@@ -47,28 +48,31 @@ class Agent:
         else:
             return np.argmax(self.Q[state])
 
-    def update_q(self, state, action, reward, next_state):
+    def update_q(self, state, action, reward, next_state, episode_mask):
         TD_error = reward + self.discount * np.max(self.Q[next_state]) - self.Q[state][action]
-        self.Q[state][action] += self.learning_rate * TD_error
+        self.eligibility[state][action] = 1
+        self.Q[episode_mask] += self.learning_rate * TD_error * self.eligibility[episode_mask]
+        self.eligibility[episode_mask] *= self.discount * self.trace_decay
 
     def fit(self):
         for e in range(self.n_episodes):
             self.e = e
             current_state = self.env.initialize()
+            self.eligibility = np.zeros(self.Q.shape)
 
+            episode_mask = np.zeros(self.Q.shape, dtype=bool)
             finished = False
             while not finished:
                 self.steps[e] += 1
                 action = self.choose_action(current_state)
+                episode_mask[current_state][action] = True  # Add SAP to nodes visited this episode
                 next_state, reward, finished = self.env.next(action)
-                self.update_q(current_state, action, reward, next_state)
+                self.update_q(current_state, action, reward, next_state, episode_mask)
                 current_state = next_state
-                if finished:
-                    print(current_state)
             print(f'Finished episode {e} in {self.steps[e]} steps')
-            state_history = self.env.state_history
-            if self.best_steps is None or len(state_history) < len(self.best_steps):
-                self.best_steps = state_history
+            # state_history = self.env.state_history
+            # if self.best_steps is None or len(state_history) < len(self.best_steps):
+            #     self.best_steps = state_history
 
     def visualize(self):
         plt.plot(self.steps)
@@ -76,13 +80,13 @@ class Agent:
 
 
 if __name__ == '__main__':
-    # env = CartPole(buckets=(3, 3, 6, 6))
+    env = CartPole(buckets=(3, 3, 6, 6))
     # env = TowersOfHanoi(n_disks=4, n_pegs=3)
-    env = Gambler()
-    agent = Agent(env, discount=0.7, n_episodes=50000)
+    # env = Gambler(win_probability=0.4)
+    agent = Agent(env, discount=1, n_episodes=300, trace_decay=0.6)
     agent.fit()
-    #agent.visualize()
+    agent.visualize()
     #env.visualize(agent.best_steps)
     #print(agent.Q)
-    plt.plot(np.argmax(agent.Q, axis=1))
-    plt.show()
+    #plt.plot(np.argmax(agent.Q, axis=1))
+    #plt.show()

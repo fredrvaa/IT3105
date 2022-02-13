@@ -9,6 +9,7 @@ from environments.gambler import Gambler
 from learner.actors.actor import Actor
 from learner.critics.critic import Critic
 from learner.critics.table_critic import TableCritic
+from learner.critics.network_critic import NetworkCritic
 from learner.actor_critic import ActorCritic
 
 STRING_EXCEPTIONS = ['name', 'checkpoint_folder']
@@ -29,8 +30,6 @@ class ConfigParser:
             if v is not None:
                 if type(v) is dict:
                     parsed_config[k] = self._parse_config(v)
-                elif type(v) is list:
-                    parsed_config[k] = [self._parse_config(x) for x in v]
                 elif type(v) is str and k not in STRING_EXCEPTIONS:
                     print(v)
                     parsed_config[k] = eval(v)

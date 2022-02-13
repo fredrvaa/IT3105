@@ -36,7 +36,7 @@ class ActorCritic:
 
                 delta = self.critic.get_delta(state, reward, next_state)
                 self.critic.update_v(delta, episode)
-                self.actor.update_pi(delta, episode)
+                self.actor.update_pi(delta.item(), episode)
 
                 state = next_state
 
