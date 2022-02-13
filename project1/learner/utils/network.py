@@ -20,7 +20,7 @@ class Network(nn.Module):
         def weights_init(m):
             classname = m.__class__.__name__
             if classname.find('Linear') != -1:
-                nn.init.xavier_uniform(m.weight)
+                nn.init.xavier_uniform_(m.weight)
         self.layer_stack.apply(weights_init)
 
 
