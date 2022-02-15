@@ -20,10 +20,24 @@ class CartPole(Environment):
                  x_min: float = -2.4,
                  x_max: float = 2.4,
                  timestep_delta: float = 0.02,
-                 n_timesteps: int = 300,
-                 buckets: Optional[tuple] = None
+                 buckets: Optional[tuple] = None,
+                 *args,
+                 **kwargs
                  ):
-        super().__init__()
+        """
+        :param L: Length of pole.
+        :param m_p: Mass of pole.
+        :param m_c: Mass of cart.
+        :param g: Gravitational constant.
+        :param F: Bang-force magnitude.
+        :param theta_max: Max radians the pole can be angled (absolute).
+        :param x_min: Minimum horizontal position of cart.
+        :param x_max: Maximum horizontal position of cart.
+        :param timestep_delta: Step size between timesteps.
+        :param buckets: If specified, the state is returned in bucketized form.
+        """
+
+        super().__init__(*args, **kwargs)
         self.L: float = L
         self.m_p: float = m_p
         self.m_c: float = m_c
@@ -33,7 +47,6 @@ class CartPole(Environment):
         self.x_min: float = x_min
         self.x_max: float = x_max
         self.timestep_delta: float = timestep_delta
-        self.n_timesteps: int = n_timesteps
         self.buckets = buckets
 
         self.current_timestep: int = 0
@@ -44,7 +57,13 @@ class CartPole(Environment):
 
         self.state_history = []
 
-    def bucketize_state(self, state: np.ndarray):
+    def bucketize_state(self, state: np.ndarray) -> tuple:
+        """Transforms a continuous state into a discrete form and places the state in buckets.
+
+        :param state: A continuous state.
+        :return: A discrete/bucketized state.
+        """
+
         bucketized = []
         for i in range(len(state)):
             low = self.low[i]
@@ -56,6 +75,11 @@ class CartPole(Environment):
         return tuple(bucketized)
 
     def initialize(self) -> list:
+        """Initializes environment/state and returns the initialized state.
+
+        :return: The initial state.
+        """
+
         self.current_timestep = 0
         theta = random.uniform(-self.theta_max, self.theta_max)
         x = (self.x_max + self.x_min) / 2
@@ -66,6 +90,15 @@ class CartPole(Environment):
         return self.bucketize_state(self.state) if self.buckets else self.state
 
     def next(self, action: int) -> tuple[tuple, float, bool]:
+        """Applies action to the environment, moving it to the next state.
+
+        :param action: The action to perform
+        :return: (next_state, reward, finished)
+                    next_state: the current state of the environment after applying the action
+                    reward: a numerical reward for moving to the state
+                    finished: boolean specifying if the environment has reached some terminal condition
+        """
+
         self.current_timestep += 1
 
         x, d_x, theta, d_theta = self.state
@@ -92,23 +125,38 @@ class CartPole(Environment):
 
     @property
     def finished(self) -> bool:
+        """Checks whether the environment is finished/terminated.
+
+        :return: Whether or not the environment is finished/terminated.
+        """
+
         x, _, theta, _ = self.state
         return x >= self.x_max or x <= self.x_min or \
             abs(theta) >= self.theta_max or \
             self.current_timestep >= self.n_timesteps
 
     @property
-    def state_shape(self):
+    def state_shape(self) -> tuple:
+        """The shape of the state space
+
+        :return: A tuple describing the shape of the state space.
+        """
+
         return (np.inf,) * 4 if self.buckets is None else self.buckets
 
     @property
-    def actions(self):
+    def actions(self) -> Actions:
+        """The actions that can be performed.
+
+        :return: A Actions object specifying the environment's actions.
+        """
+
         return Actions(2)
 
     def visualize(self) -> None:
-        #print(self.state_history)
+        """Visualizes the state history."""
+
         thetas = np.array(self.state_history)[:, 2]
-        #print(thetas)
         plt.plot(thetas)
         plt.show()
 
