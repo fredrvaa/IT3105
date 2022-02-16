@@ -1,9 +1,15 @@
+import numpy as np
 from torch import nn
 
 
 class Network(nn.Module):
-    def __init__(self, input_size: int, layer_sizes: list[int]):
+    """Wrapper around nn.Module to specify custom pytorch network."""
 
+    def __init__(self, input_size: int, layer_sizes: list[int]):
+        """
+        :param input_size: Size of input into network.
+        :param layer_sizes: List of all layer sizes in network.
+        """
 
         super().__init__()
         layer_sizes.append(1)
@@ -23,11 +29,11 @@ class Network(nn.Module):
                 nn.init.xavier_uniform_(m.weight)
         self.layer_stack.apply(weights_init)
 
+    def forward(self, x: np.ndarray) -> float:
+        """Forwards x through the network.
 
+        :param x: Input to network.
+        :return: Output after forward pass.
+        """
 
-    def forward(self, x):
         return self.layer_stack(x)
-
-if __name__ == '__main__':
-    n = Network(3, [5,5,6,7,1])
-    print(n.layer_stack)

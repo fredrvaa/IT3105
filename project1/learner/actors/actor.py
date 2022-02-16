@@ -65,7 +65,10 @@ class Actor:
 
         This method chooses either:
         1) A random legal action (exploration)
-        2) The "best" action in the current state (exploitation)
+        2) The "optimal" action in the current state (exploitation)
+
+        If episode is not provided, epsilon will be set to zero,
+        meaning the optimal action (according to the policy) will be taken.
 
         :param state: Current state.
         :param episode: Episode number. Used to decay epsilon.
