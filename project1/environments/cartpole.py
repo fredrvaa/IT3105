@@ -166,14 +166,8 @@ class CartPole(Environment):
 
         thetas = np.array(self.state_history)[:, 2]
         plt.plot(thetas)
+        plt.title(f'Epsilon=0 run in {self.__class__.__name__}')
+        plt.xlabel('Timestep')
+        plt.ylabel('Theta [radians]')
         plt.show()
 
-
-
-
-
-if __name__ == '__main__':
-    c = CartPole()
-    c.initialize()
-    print(c.next(1))
-    print(c.next(2))

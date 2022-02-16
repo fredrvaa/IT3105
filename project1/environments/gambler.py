@@ -118,5 +118,8 @@ class Gambler(Environment):
         """Visualizes the state history."""
 
         plt.plot(np.array(self.state_history))
+        plt.title(f'Epsilon=0 run in {self.__class__.__name__}')
+        plt.xlabel('Timestep')
+        plt.ylabel('Money')
         plt.show()
 

@@ -110,5 +110,8 @@ class Actor:
 
         mask = np.all(np.isnan(self.pi), axis=1)  # Mask out states with no valid actions (all NaN)
         plt.plot(np.nanargmax(self.pi[~mask], axis=1))
+        plt.title(f'Strategy in {self.environment.__class__.__name__}')
+        plt.xlabel('State')
+        plt.ylabel('Action')
         plt.show()
 

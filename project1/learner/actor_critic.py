@@ -60,6 +60,9 @@ class ActorCritic:
         """Visualizes the number of steps taken at each episode during the last fit."""
 
         plt.plot(self.steps)
+        plt.title(f'Timesteps taken in {self.environment.__class__.__name__}')
+        plt.xlabel('Episode')
+        plt.ylabel('Timesteps')
         plt.show()
 
     def run(self, visualize: bool = True, vis_sleep: float = 1.0):

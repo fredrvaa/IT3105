@@ -138,7 +138,7 @@ class TowersOfHanoi(Environment):
 
     def visualize(self, vis_sleep: float = 1.0) -> None:
         """Visualizes the state history."""
-
+        print(f'Epsilon=0 run in {self.__class__.__name__}')
         for i, state in enumerate(self.state_history):
             n_pegs = self.state_history[-1][0] + 1
             table = PrettyTable([f'Peg {x}' for x in range(n_pegs)])
@@ -148,15 +148,3 @@ class TowersOfHanoi(Environment):
                 table.add_row(row)
             print(table)
             time.sleep(vis_sleep)
-
-
-if __name__ == '__main__':
-    t = TowersOfHanoi(n_disks=3, n_pegs=3)
-    t.initialize()
-    a = 3
-    print('move:', t.moves[a])
-    print(t.next(a))
-    #print(t.state, t.state_shape, t.actions.n)
-    # for a in range(t.actions.n):
-    #     print(t.moves[a])
-    #     print(t._is_legal(a))
