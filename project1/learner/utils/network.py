@@ -18,7 +18,6 @@ class Network(nn.Module):
         for in_size, out_size in zip(layer_sizes, layer_sizes[1:]):
             layer_stack.append(nn.ReLU())
             lin = nn.Linear(in_size, out_size)
-            nn.init.xavier_uniform(lin.weight)
             layer_stack.append(lin)
 
         self.layer_stack = nn.Sequential(*layer_stack)
