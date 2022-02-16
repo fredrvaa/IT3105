@@ -6,7 +6,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from environments.environment import Environment
-from environments.actions import Actions
 
 
 class CartPole(Environment):
@@ -145,13 +144,23 @@ class CartPole(Environment):
         return (np.inf,) * 4 if self.buckets is None else self.buckets
 
     @property
-    def actions(self) -> Actions:
+    def actions(self) -> int:
         """The actions that can be performed.
 
-        :return: A Actions object specifying the environment's actions.
+        :return: Number of total actions
         """
 
-        return Actions(2)
+        return 2
+
+    def action_legal_in_state(self, action: int, state: tuple):
+        """Checks whether an action is legal in a given state.
+
+        :param action: Action to check.
+        :param state: State to check.
+        :return: Whether the action is legal in the given state.
+        """
+
+        return action in [0, 1]
 
     def visualize(self) -> None:
         """Visualizes the state history."""

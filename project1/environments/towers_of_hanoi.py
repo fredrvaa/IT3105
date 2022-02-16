@@ -2,8 +2,6 @@ from prettytable import PrettyTable
 
 from environments.environment import Environment
 
-from environments.actions import Actions
-
 
 class TowersOfHanoi(Environment):
     def __init__(self, n_disks: int = 3, n_pegs: int = 3, *args, **kwargs):
@@ -48,23 +46,6 @@ class TowersOfHanoi(Environment):
                 moves.append((p1, p2))
         return moves
 
-    def _is_legal(self, from_peg, to_peg) -> bool:
-        """Checks whether a move is legal.
-
-        :param from_peg: The peg that a disk should be moved from.
-        :param to_peg: The peg that a disk should be moved to.
-        :return: Whether or not the move is legal given the current state.
-        """
-
-        if from_peg not in self.state:
-            return False
-        from_disk = self.state.index(from_peg)
-
-        if to_peg in self.state[:from_disk]:
-            return False
-
-        return True
-
     def _move_disk(self, from_peg, to_peg) -> None:
         """Moves disk from a peg to a different peg.
 
@@ -88,8 +69,8 @@ class TowersOfHanoi(Environment):
         """
 
         self.current_timestep += 1
-        from_peg, to_peg = self.moves[action]
-        if self._is_legal(from_peg, to_peg):
+        if self.action_legal_in_state(action, self.state):
+            from_peg, to_peg = self.moves[action]
             self._move_disk(from_peg, to_peg)
             is_won = self.is_won
             reward = 100 if is_won else 0
@@ -101,6 +82,24 @@ class TowersOfHanoi(Environment):
         if self.store_states:
             self.state_history.append(self.state)
         return self.state, reward, finished
+
+    def action_legal_in_state(self, action: int, state: tuple):
+        """Checks whether an action is legal in a given state.
+
+        :param action: Action to check.
+        :param state: State to check.
+        :return: Whether the action is legal in the given state.
+        """
+
+        from_peg, to_peg = self.moves[action]
+        if from_peg not in state:
+            return False
+        from_disk = state.index(from_peg)
+
+        if to_peg in state[:from_disk]:
+            return False
+
+        return True
 
     @property
     def is_won(self) -> bool:
@@ -128,13 +127,13 @@ class TowersOfHanoi(Environment):
         return (self.n_pegs, ) * self.n_disks
 
     @property
-    def actions(self) -> Actions:
+    def actions(self) -> int:
         """The actions that can be performed.
 
-        :return: A Actions object specifying the environment's actions.
+        :return: Number of total actions
         """
 
-        return Actions(self.n_pegs * (self.n_pegs - 1))
+        return self.n_pegs * (self.n_pegs - 1)
 
     def visualize(self) -> None:
         """Visualizes the state history."""

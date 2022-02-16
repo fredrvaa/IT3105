@@ -1,7 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from environments.actions import Actions
 from environments.environment import Environment
 
 
@@ -29,16 +28,19 @@ class Gambler(Environment):
         self.state_history = []
         if self.store_states:
             self.state_history.append(self.state)
+
         return self.state,
 
-    def _is_legal(self, bet: int) -> bool:
-        """Checks whether a bet is legal.
+    def action_legal_in_state(self, action: int, state: tuple):
+        """Checks whether an action is legal in a given state.
 
-        :param bet: The bet in terms of money.
-        :return: Whether or not the bet is legal.
+        :param action: Action to check.
+        :param state: State to check.
+        :return: Whether the action is legal in the given state.
         """
+        bet = action + 1
 
-        return bet <= self.state and bet + self.state <= self.goal_money
+        return bet <= state[0] and bet + state[0] <= self.goal_money
 
     def _is_won(self) -> bool:
         """Checks whether the gambler has won in the current state.
@@ -77,8 +79,8 @@ class Gambler(Environment):
                     finished: boolean specifying if the environment has reached some terminal condition
         """
 
-        bet = action + 1
-        if self._is_legal(bet):
+        if self.action_legal_in_state(action, (self.state, )):
+            bet = action + 1
             self._perform_bet(bet)
             if self._is_won():
                 reward = 100
@@ -102,13 +104,13 @@ class Gambler(Environment):
         return self.goal_money + 1,
 
     @property
-    def actions(self) -> Actions:
+    def actions(self) -> int:
         """The actions that can be performed.
 
-        :return: A Actions object specifying the environment's actions.
+        :return: Number of total actions
         """
 
-        return Actions(int(self.goal_money / 2))
+        return int(self.goal_money / 2)
 
     def visualize(self) -> None:
         """Visualizes the state history."""
