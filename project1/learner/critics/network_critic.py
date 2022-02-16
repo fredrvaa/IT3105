@@ -76,6 +76,7 @@ class NetworkCritic(Critic):
             self.optimizer.param_groups[0]['lr'] = self.learning_rate(episode)
             self.optimizer.step()
             self.optimizer.zero_grad()
+            self.batch_count = 0
 
     def reset(self) -> None:
         """Nothing has to be reset for the NetworkCritic in between episodes."""
