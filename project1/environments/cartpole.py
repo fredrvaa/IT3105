@@ -56,7 +56,7 @@ class CartPole(Environment):
 
         self.state_history = []
 
-    def bucketize_state(self, state: np.ndarray) -> tuple:
+    def _bucketize_state(self, state: list) -> tuple:
         """Transforms a continuous state into a discrete form and places the state in buckets.
 
         :param state: A continuous state.
@@ -73,6 +73,17 @@ class CartPole(Environment):
             bucketized.append(bucketized_value)
         return tuple(bucketized)
 
+    def _is_finished(self) -> bool:
+        """Checks whether the environment is finished/terminated.
+
+        :return: Whether or not the environment is finished/terminated.
+        """
+
+        x, _, theta, _ = self.state
+        return x >= self.x_max or x <= self.x_min or \
+            abs(theta) >= self.theta_max or \
+            self.current_timestep >= self.n_timesteps
+
     def initialize(self) -> list:
         """Initializes environment/state and returns the initialized state.
 
@@ -86,7 +97,7 @@ class CartPole(Environment):
         self.state_history = []
         if self.store_states:
             self.state_history.append(self.state)
-        return self.bucketize_state(self.state) if self.buckets else self.state
+        return self._bucketize_state(self.state) if self.buckets else self.state
 
     def next(self, action: int) -> tuple[tuple, float, bool]:
         """Applies action to the environment, moving it to the next state.
@@ -120,19 +131,17 @@ class CartPole(Environment):
         self.state = [x, d_x, theta, d_theta]
         if self.store_states:
             self.state_history.append(self.state)
-        return self.bucketize_state(self.state) if self.buckets else self.state, 1.0, self.finished
+        return self._bucketize_state(self.state) if self.buckets else self.state, 1.0, self._is_finished()
 
-    @property
-    def finished(self) -> bool:
-        """Checks whether the environment is finished/terminated.
+    def action_legal_in_state(self, action: int, state: tuple):
+        """Checks whether an action is legal in a given state.
 
-        :return: Whether or not the environment is finished/terminated.
+        :param action: Action to check.
+        :param state: State to check.
+        :return: Whether the action is legal in the given state.
         """
 
-        x, _, theta, _ = self.state
-        return x >= self.x_max or x <= self.x_min or \
-            abs(theta) >= self.theta_max or \
-            self.current_timestep >= self.n_timesteps
+        return action in [0, 1]
 
     @property
     def state_shape(self) -> tuple:
@@ -151,16 +160,6 @@ class CartPole(Environment):
         """
 
         return 2
-
-    def action_legal_in_state(self, action: int, state: tuple):
-        """Checks whether an action is legal in a given state.
-
-        :param action: Action to check.
-        :param state: State to check.
-        :return: Whether the action is legal in the given state.
-        """
-
-        return action in [0, 1]
 
     def visualize(self) -> None:
         """Visualizes the state history."""

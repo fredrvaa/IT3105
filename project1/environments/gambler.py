@@ -18,29 +18,7 @@ class Gambler(Environment):
         self.state = None
         self.state_history = []
 
-    def initialize(self):
-        """Initializes environment/state and returns the initialized state.
-
-        :return: The initial state.
-        """
-
-        self.state = np.random.randint(1, self.goal_money)
-        self.state_history = []
-        if self.store_states:
-            self.state_history.append(self.state)
-
-        return self.state,
-
-    def action_legal_in_state(self, action: int, state: tuple):
-        """Checks whether an action is legal in a given state.
-
-        :param action: Action to check.
-        :param state: State to check.
-        :return: Whether the action is legal in the given state.
-        """
-        bet = action + 1
-
-        return bet <= state[0] and bet + state[0] <= self.goal_money
+        self.current_timestep: int = 0
 
     def _is_won(self) -> bool:
         """Checks whether the gambler has won in the current state.
@@ -69,6 +47,19 @@ class Gambler(Environment):
         else:
             self.state -= bet
 
+    def initialize(self):
+        """Initializes environment/state and returns the initialized state.
+
+        :return: The initial state.
+        """
+        self.current_timestep = 0
+        self.state = np.random.randint(1, self.goal_money)
+        self.state_history = []
+        if self.store_states:
+            self.state_history.append(self.state)
+
+        return self.state,
+
     def next(self, action: int):
         """Applies action to the environment, moving it to the next state.
 
@@ -78,7 +69,7 @@ class Gambler(Environment):
                     reward: a numerical reward for moving to the state
                     finished: boolean specifying if the environment has reached some terminal condition
         """
-
+        self.current_timestep += 1
         if self.action_legal_in_state(action, (self.state, )):
             bet = action + 1
             self._perform_bet(bet)
@@ -93,6 +84,17 @@ class Gambler(Environment):
         if self.store_states:
             self.state_history.append(self.state)
         return (self.state, ), reward, finished
+
+    def action_legal_in_state(self, action: int, state: tuple):
+        """Checks whether an action is legal in a given state.
+
+        :param action: Action to check.
+        :param state: State to check.
+        :return: Whether the action is legal in the given state.
+        """
+        bet = action + 1
+
+        return bet <= state[0] and bet + state[0] <= self.goal_money
 
     @property
     def state_shape(self) -> tuple:

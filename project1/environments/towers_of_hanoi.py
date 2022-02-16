@@ -19,19 +19,6 @@ class TowersOfHanoi(Environment):
 
         self.state_history = []
 
-    def initialize(self) -> tuple:
-        """Initializes environment/state and returns the initialized state.
-
-        :return: The initial state.
-        """
-
-        self.current_timestep = 0
-        self.state = (0, ) * self.n_disks
-        self.state_history = []
-        if self.store_states:
-            self.state_history.append(self.state)
-        return self.state
-
     def _get_moves(self) -> list:
         """Get all possible moves for the towers of hanoi game given number of disks and pegs.
 
@@ -58,6 +45,34 @@ class TowersOfHanoi(Environment):
         state[from_disk] = to_peg
         self.state = tuple(state)
 
+    def _is_won(self) -> bool:
+        """Checks whether the current state is won.
+
+        :return: Whether or not the current state is won.
+        """
+
+        prev = self.state[0]
+        if prev != self.n_pegs - 1:
+            return False
+        for s in self.state:
+            if s != prev:
+                return False
+            prev = s
+        return True
+
+    def initialize(self) -> tuple:
+        """Initializes environment/state and returns the initialized state.
+
+        :return: The initial state.
+        """
+
+        self.current_timestep = 0
+        self.state = (0, ) * self.n_disks
+        self.state_history = []
+        if self.store_states:
+            self.state_history.append(self.state)
+        return self.state
+
     def next(self, action: int) -> tuple[tuple, float, bool]:
         """Applies action to the environment, moving it to the next state.
 
@@ -72,7 +87,7 @@ class TowersOfHanoi(Environment):
         if self.action_legal_in_state(action, self.state):
             from_peg, to_peg = self.moves[action]
             self._move_disk(from_peg, to_peg)
-            is_won = self.is_won
+            is_won = self._is_won()
             reward = 100 if is_won else 0
             finished = is_won or self.current_timestep >= self.n_timesteps
         else:
@@ -99,22 +114,6 @@ class TowersOfHanoi(Environment):
         if to_peg in state[:from_disk]:
             return False
 
-        return True
-
-    @property
-    def is_won(self) -> bool:
-        """Checks whether the current state is won.
-
-        :return: Whether or not the current state is won.
-        """
-
-        prev = self.state[0]
-        if prev != self.n_pegs - 1:
-            return False
-        for s in self.state:
-            if s != prev:
-                return False
-            prev = s
         return True
 
     @property
