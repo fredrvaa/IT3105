@@ -1,3 +1,5 @@
+import time
+
 from prettytable import PrettyTable
 
 from environments.environment import Environment
@@ -134,7 +136,7 @@ class TowersOfHanoi(Environment):
 
         return self.n_pegs * (self.n_pegs - 1)
 
-    def visualize(self) -> None:
+    def visualize(self, vis_sleep: float = 1.0) -> None:
         """Visualizes the state history."""
 
         for i, state in enumerate(self.state_history):
@@ -145,7 +147,7 @@ class TowersOfHanoi(Environment):
                 row[peg] = 'X'*(disk + 1)
                 table.add_row(row)
             print(table)
-            input()
+            time.sleep(vis_sleep)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 
 class Environment(ABC):
@@ -75,8 +76,11 @@ class Environment(ABC):
         raise NotImplementedError('Subclasses must implement actions property')
 
     @abstractmethod
-    def visualize(self) -> None:
-        """Visualizes the state history."""
+    def visualize(self, vis_sleep: float = 1.0) -> None:
+        """Visualizes the state history.
+
+        :param vis_sleep: Seconds between each frame (if needed).
+        """
 
         raise NotImplementedError('Subclasses must implement visualize() class method')
 

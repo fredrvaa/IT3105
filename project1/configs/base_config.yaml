@@ -1,6 +1,6 @@
 environment_type: CartPole # {CartPole, TowersOfHanoi, Gambler}
-environment_params:
-  n_timesteps: 300
+environment_params: # Parameters used by the specified environment (passed in constructor to environment
+  n_timesteps: 300 # {<int>, None}
   L: 0.5
   m_p: 0.1
   m_c: 1.0
@@ -11,23 +11,26 @@ environment_params:
   x_max: 2.4
   timestep_delta: 0.02
   buckets: (6,6,6,6)
-actor_type: Actor
-actor_params:
-  discount: 0.99
-  start_learning_rate: 1.0
-  end_learning_rate: 0.1
-  learning_rate_decay: 0.05
-  start_epsilon: 1.0
-  end_epsilon: 0.05
-  epsilon_decay: 0.04
-  trace_decay: 0.9
+actor_type: Actor # {Actor}
+actor_params: # Parameters used by actor
+  discount: 0.99 # Discount factor.
+    start_learning_rate: 1.0 # Learning rate at start of fit.
+    end_learning_rate: 0.1 # Learning rate at end of fit.
+  learning_rate_decay: 0.05 # Learning rate decay factor (0,1). Lower -> slower decay; Higher -> faster decay
+  start_epsilon: 1.0 # Epsilon at start of fit.
+  end_epsilon: 0.05 # Epsilon at end of fit.
+  epsilon_decay: 0.04 # Epsilon decay factor (0,1). Lower -> slower decay; Higher -> faster decay
+  trace_decay: 0.9 # Eligibility trace decay factor.
 critic_type: TableCritic # {TableCritic, NetworkCritic}
 critic_params:
-  discount: 0.99
-  start_learning_rate: 1.0
-  end_learning_rate: 0.1
-  learning_rate_decay: 0.05
+  discount: 0.99 # Discount factor.
+  start_learning_rate: 1.0 # Learning rate at start of fit.
+  end_learning_rate: 0.1 # Learning rate at end of fit.
+  learning_rate_decay: 0.05 # Learning rate decay factor (0,1). Lower -> slower decay; Higher -> faster decay
   trace_decay: 0.9 # Only used by TableCritic
 fit:
-  n_episodes: 500
+  n_episodes: 500 # Number of episodes to fit actor/critic for.
+visualization:
+  show: True # Whether to visualize plots and game after training.
+  vis_sleep: 1.0 # Number of seconds to wait between each frame when visualizing (if needed).
 

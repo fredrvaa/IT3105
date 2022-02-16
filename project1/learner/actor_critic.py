@@ -62,7 +62,7 @@ class ActorCritic:
         plt.plot(self.steps)
         plt.show()
 
-    def run(self, visualize: bool = True):
+    def run(self, visualize: bool = True, vis_sleep: float = 1.0):
         """Runs through the environment using the fitted actor/critic.
 
         :param visualize: Whether or not the state history of the environment should be visualized.
@@ -80,4 +80,4 @@ class ActorCritic:
 
         print(f'Finished run after {steps} steps')
         if visualize:
-            self.environment.visualize()
+            self.environment.visualize(vis_sleep)

@@ -26,14 +26,17 @@ environment: Environment = config_parser.environment
 
 actor_critic: ActorCritic = config_parser.actor_critic
 
-fit_kwargs = config_parser.fit_parameters
+fit_parameters = config_parser.fit_parameters
+visualization_parameters = config_parser.visualization_parameters
+show = visualization_parameters['show']
+vis_sleep = visualization_parameters['vis_sleep']
 
 print('---FITTING MODEL---')
-actor_critic.fit(**fit_kwargs)
-if args.visualize:
+actor_critic.fit(**fit_parameters)
+if show:
     actor_critic.visualize_fit()
 
 print('---RUNNING MODEL---')
-actor_critic.run(visualize=args.visualize)
-if type(environment) is Gambler and args.visualize:
+actor_critic.run(visualize=show, vis_sleep=vis_sleep)
+if type(environment) is Gambler and show:
     actor_critic.actor.visualize_strategy()

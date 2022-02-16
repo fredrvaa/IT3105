@@ -161,7 +161,7 @@ class CartPole(Environment):
 
         return 2
 
-    def visualize(self) -> None:
+    def visualize(self, vis_sleep: float = 1.0) -> None:
         """Visualizes the state history."""
 
         thetas = np.array(self.state_history)[:, 2]

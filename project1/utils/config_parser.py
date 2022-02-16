@@ -23,6 +23,7 @@ class ConfigParser:
         self.environment: Environment = self._get_environment()
         self.actor_critic: ActorCritic = self._get_actor_critic()
         self.fit_parameters: dict = self._get_fit_parameters()
+        self.visualization_parameters: dict = self._get_visualization_parameters()
 
     def _parse_config(self, config) -> dict:
         parsed_config = {}
@@ -59,3 +60,6 @@ class ConfigParser:
 
     def _get_fit_parameters(self) -> dict:
         return self._parse_config(self._config['fit'])
+
+    def _get_visualization_parameters(self) -> dict:
+        return self._parse_config(self._config['visualization'])

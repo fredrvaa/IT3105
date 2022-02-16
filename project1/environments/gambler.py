@@ -114,7 +114,7 @@ class Gambler(Environment):
 
         return int(self.goal_money / 2)
 
-    def visualize(self) -> None:
+    def visualize(self, vis_sleep: float = 1.0) -> None:
         """Visualizes the state history."""
 
         plt.plot(np.array(self.state_history))
