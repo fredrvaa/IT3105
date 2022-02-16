@@ -37,7 +37,7 @@ class TableCritic(Critic):
         """Updates value function V using the temporal difference error delta.
 
         :param delta: Temporal difference error
-        :param episode: Episode nubmer. Used to decay learning rate.
+        :param episode: Episode number. Used to decay learning rate.
         """
 
         self.v[self.episode_mask] += self.learning_rate(episode) * delta * self.eligibility[self.episode_mask]
