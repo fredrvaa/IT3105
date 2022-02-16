@@ -31,7 +31,6 @@ class ConfigParser:
                 if type(v) is dict:
                     parsed_config[k] = self._parse_config(v)
                 elif type(v) is str and k not in STRING_EXCEPTIONS:
-                    print(v)
                     parsed_config[k] = eval(v)
                 else:
                     parsed_config[k] = v

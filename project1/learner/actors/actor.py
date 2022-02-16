@@ -57,7 +57,6 @@ class Actor:
             for action, _ in enumerate(pi[state]):
                 if not self.environment.action_legal_in_state(action, state):
                     pi[state][action] = np.nan
-
         return pi
 
     def choose_action(self, state: tuple, episode: Optional[int] = None) -> int:
