@@ -8,7 +8,7 @@ from learner.utils.network import Network
 class NetworkCritic(Critic):
     """Critic using a pytorch neural network."""
 
-    def __init__(self, layer_sizes: list[int] = [6, 4, 4], batch_size: int = 1, *args, **kwargs):
+    def __init__(self, layer_sizes: list[int] = [6, 4, 4], batch_size: int = 20, *args, **kwargs):
         """
         :param layer_sizes: Hidden layer sizes. Each entry in the list specifies the size of a hidden layer.
         :param batch_size: How many losses should be accumulated before stepping the optimizer.
@@ -20,7 +20,7 @@ class NetworkCritic(Critic):
         self.v: Network = Network(self.nn_input_size, layer_sizes)
         self.optimizer = torch.optim.Adam(self.v.parameters(), lr=self.learning_rate())
         self.batch_size = batch_size
-        self.batch_losses = []
+        self.batch_count = 0
 
     def encode_state(self, state: tuple) -> np.ndarray:
         """Encodes a tupled state to a bit list.
@@ -55,6 +55,8 @@ class NetworkCritic(Critic):
             y = reward + self.discount * self.v(next_state)
 
         state = torch.FloatTensor(self.encode_state(state))
+
+        # Perform forward pass
         y_hat = self.v(state)
 
         delta = y - y_hat
@@ -67,14 +69,13 @@ class NetworkCritic(Critic):
        :param episode: Episode nubmer. Used to decay learning rate.
        """
 
-        self.batch_losses.append(delta)
-        if len(self.batch_losses) >= self.batch_size:
+        loss = delta.pow(2)
+        loss.backward()
+        self.batch_count += 1
+        if self.batch_count >= self.batch_size:
             self.optimizer.param_groups[0]['lr'] = self.learning_rate(episode)
-            loss = torch.cat(self.batch_losses).pow(2).mean()
-            self.optimizer.zero_grad()
-            loss.backward()
             self.optimizer.step()
-            self.batch_losses = []
+            self.optimizer.zero_grad()
 
     def reset(self) -> None:
         """Nothing has to be reset for the NetworkCritic in between episodes."""
